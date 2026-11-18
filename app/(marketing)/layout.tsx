@@ -42,10 +42,24 @@ export default function MarketingLayout({
               Pricing
             </Link>
             <Link
-              href="/#faq"
-              className="text-muted hover:text-text transition-colors"
+              href="/docs"
+              className={`transition-colors ${
+                pathname === "/docs"
+                  ? "text-primary font-medium"
+                  : "text-muted hover:text-text"
+              }`}
             >
               Docs
+            </Link>
+            <Link
+              href="/blog"
+              className={`transition-colors ${
+                pathname === "/blog"
+                  ? "text-primary font-medium"
+                  : "text-muted hover:text-text"
+              }`}
+            >
+              Blog
             </Link>
             <Link
               href="/login"
@@ -94,11 +108,26 @@ export default function MarketingLayout({
                       Pricing
                     </Link>
                     <Link
-                      href="/#faq"
+                      href="/docs"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="text-muted hover:text-text"
+                      className={
+                        pathname === "/docs"
+                          ? "text-primary font-medium"
+                          : "text-muted hover:text-text"
+                      }
                     >
-                      Docs & FAQ
+                      Docs
+                    </Link>
+                    <Link
+                      href="/blog"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={
+                        pathname === "/blog"
+                          ? "text-primary font-medium"
+                          : "text-muted hover:text-text"
+                      }
+                    >
+                      Blog
                     </Link>
                     <Link
                       href="/login"
@@ -167,24 +196,24 @@ export default function MarketingLayout({
               </h4>
               <ul className="space-y-2.5 text-[14px]">
                 <li>
-                  <a href="#how-it-works" className="text-muted hover:text-text transition-colors">
+                  <Link href="/docs" className="text-muted hover:text-text transition-colors">
                     Documentation
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#api" className="text-muted hover:text-text transition-colors">
+                  <Link href="/docs#api" className="text-muted hover:text-text transition-colors">
                     API Reference
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#guides" className="text-muted hover:text-text transition-colors">
+                  <Link href="/docs#wordpress-setup" className="text-muted hover:text-text transition-colors">
                     WordPress Setup
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#changelog" className="text-muted hover:text-text transition-colors">
+                  <Link href="/changelog" className="text-muted hover:text-text transition-colors">
                     Changelog
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -194,19 +223,19 @@ export default function MarketingLayout({
               </h4>
               <ul className="space-y-2.5 text-[14px]">
                 <li>
-                  <a href="#about" className="text-muted hover:text-text transition-colors">
+                  <Link href="/about" className="text-muted hover:text-text transition-colors">
                     About
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#blog" className="text-muted hover:text-text transition-colors">
+                  <Link href="/blog" className="text-muted hover:text-text transition-colors">
                     SEO Blog
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#contact" className="text-muted hover:text-text transition-colors">
+                  <Link href="/contact" className="text-muted hover:text-text transition-colors">
                     Contact Support
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -216,19 +245,19 @@ export default function MarketingLayout({
               </h4>
               <ul className="space-y-2.5 text-[14px]">
                 <li>
-                  <a href="#privacy" className="text-muted hover:text-text transition-colors">
+                  <Link href="/privacy" className="text-muted hover:text-text transition-colors">
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#terms" className="text-muted hover:text-text transition-colors">
+                  <Link href="/terms" className="text-muted hover:text-text transition-colors">
                     Terms of Service
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#security" className="text-muted hover:text-text transition-colors">
+                  <Link href="/security" className="text-muted hover:text-text transition-colors">
                     Security Policy
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>

@@ -9,6 +9,8 @@ export interface WordPressConnectionConfig {
 export interface WordPressPostItem {
   id: number;
   date: string;
+  modified: string;
+  modified_gmt: string;
   slug: string;
   type: "post" | "page";
   link: string;

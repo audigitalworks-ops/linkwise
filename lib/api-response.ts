@@ -9,6 +9,7 @@ export type ApiErrorCode =
   | "WP_UNREACHABLE"
   | "WP_AUTH_FAILED"
   | "RATE_LIMITED"
+  | "CONTENT_CONFLICT"
   | "INTERNAL";
 
 export interface ApiSuccess<T> {

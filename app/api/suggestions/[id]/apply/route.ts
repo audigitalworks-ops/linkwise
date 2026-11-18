@@ -6,6 +6,7 @@ import { decrypt } from "@/lib/crypto";
 import { WordPressClient } from "@/lib/wordpress/client";
 import { wrapAnchorInHtml } from "@/lib/wordpress/apply-link";
 import { PLAN_LIMITS, PlanType } from "@/lib/billing/plans";
+import { parseWordPressHtml } from "@/lib/wordpress/parse-links";
 
 export async function POST(
   req: NextRequest,
@@ -39,7 +40,7 @@ export async function POST(
         source_paragraph,
         relevance,
         status,
-        source_page:source_page_id(id, wp_id, wp_type, title, url, path),
+        source_page:source_page_id(id, wp_id, wp_type, title, url, path, content_text),
         target_page:target_page_id(id, wp_id, wp_type, title, url, path),
         site:site_id(id, user_id, url, wp_username, wp_password_encrypted)
       `)
@@ -91,6 +92,7 @@ export async function POST(
       wp_id: number;
       wp_type: "post" | "page";
       url: string;
+      content_text: string;
     };
     const targetPage = suggestion.target_page as unknown as {
       id: string;
@@ -108,6 +110,32 @@ export async function POST(
     // 4. Fetch current post HTML from WordPress
     const postData = await wpClient.getPost(sourcePage.wp_id, sourcePage.wp_type);
     const originalContent = postData?.content?.raw || postData?.content?.rendered || "";
+
+    // 5. CONFLICT DETECTION: Compare current WordPress content against scan snapshot
+    // Strip HTML tags and normalize whitespace to compare plain text
+    const currentPlainText = parseWordPressHtml(
+      postData?.content?.rendered || originalContent,
+      siteData.url
+    ).plainText;
+    const scannedPlainText = (sourcePage.content_text || "").trim();
+
+    if (scannedPlainText && currentPlainText) {
+      // Compare normalized content - if the article text has changed significantly,
+      // an editor modified it after the scan. Block the apply to prevent overwriting.
+      const normalizeText = (s: string) =>
+        s.replace(/\s+/g, " ").trim().toLowerCase();
+
+      const normalizedCurrent = normalizeText(currentPlainText);
+      const normalizedScanned = normalizeText(scannedPlainText);
+
+      if (normalizedCurrent !== normalizedScanned) {
+        return apiError(
+          "CONTENT_CONFLICT",
+          "This article has been modified in WordPress since your last scan. Please run a new scan to generate fresh suggestions based on the updated content.",
+          409
+        );
+      }
+    }
 
     // Check if the link is already present in the post
     const escapedAnchor = suggestion.anchor_text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -129,7 +157,7 @@ export async function POST(
       });
     }
 
-    // 5. Wrap anchor text or append related link
+    // 6. Wrap anchor text or append related link
     const { updatedHtml, replaced } = wrapAnchorInHtml({
       htmlContent: originalContent,
       anchorText: suggestion.anchor_text,
@@ -144,10 +172,10 @@ export async function POST(
       finalHtml = originalContent ? `${originalContent}\n\n${relatedParagraph}` : relatedParagraph;
     }
 
-    // 6. Update WordPress post content
+    // 7. Update WordPress post content
     await wpClient.updatePost(sourcePage.wp_id, finalHtml, sourcePage.wp_type);
 
-    // 7. Record original content in activity_log for Undo support
+    // 8. Record original content in activity_log for Undo support
     const { data: activityRow, error: actError } = await admin
       .from("activity_log")
       .insert({
@@ -171,14 +199,24 @@ export async function POST(
       console.error("Failed to log activity:", actError);
     }
 
-    // 8. Update suggestion status
-    await admin
-      .from("suggestions")
-      .update({
-        status: "applied",
-        applied_at: new Date().toISOString(),
-      })
-      .eq("id", id);
+    // 9. Update suggestion status and sync page content_text snapshot
+    await Promise.all([
+      admin
+        .from("suggestions")
+        .update({
+          status: "applied",
+          applied_at: new Date().toISOString(),
+        })
+        .eq("id", id),
+      // Update the page's content snapshot so future applies on the same page
+      // won't falsely trigger a conflict from our own link insertion
+      admin
+        .from("pages")
+        .update({
+          content_text: parseWordPressHtml(finalHtml, siteData.url).plainText,
+        })
+        .eq("id", sourcePage.id),
+    ]);
 
     return apiSuccess({
       status: "applied",
