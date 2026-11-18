@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -9,7 +10,9 @@ const inter = Inter({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://linkwise.io";
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://linkwise-app.vercel.app";
+const gaId = process.env.NEXT_PUBLIC_GA_ID;
+const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 
 export const viewport: Viewport = {
   themeColor: "#1F6F54",
@@ -48,6 +51,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  verification: googleVerification
+    ? {
+        google: googleVerification,
+      }
+    : undefined,
   openGraph: {
     title: "Linkwise — WordPress Internal Linking Automation SaaS",
     description:
@@ -134,6 +142,22 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {gaId && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaId}');
+              `}
+            </Script>
+          </>
+        )}
       </head>
       <body className="min-h-full flex flex-col font-sans bg-bg text-text antialiased selection:bg-primary-tint selection:text-primary">
         {children}
