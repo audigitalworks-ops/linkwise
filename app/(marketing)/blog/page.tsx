@@ -21,7 +21,7 @@ export default function BlogIndexPage() {
             Knowledge Hub
           </span>
           <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-text mb-4">
-            The Linkwise SEO Blog
+            The Linkwise Blog
           </h1>
           <p className="text-[17px] text-muted leading-relaxed">
             Actionable guides, data studies, and architectural best practices on WordPress SEO, internal link equity, and website architecture.

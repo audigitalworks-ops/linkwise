@@ -229,7 +229,7 @@ export default function MarketingLayout({
                 </li>
                 <li>
                   <Link href="/blog" className="text-muted hover:text-text transition-colors">
-                    SEO Blog
+                    Blog
                   </Link>
                 </li>
                 <li>
