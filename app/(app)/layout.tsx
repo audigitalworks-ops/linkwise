@@ -80,11 +80,24 @@ export default function AppLayout({
           const name =
             profile?.full_name ||
             (user.user_metadata?.full_name as string) ||
+            (user.user_metadata?.name as string) ||
             email.split("@")[0] ||
             "User";
           setUserName(name);
           if (profile?.email) {
             setUserEmail(profile.email);
+          }
+
+          // Ensure profile exists in profiles table
+          if (!profile && user) {
+            supabase
+              .from("profiles")
+              .upsert({
+                id: user.id,
+                email: user.email,
+                full_name: name,
+              })
+              .then();
           }
 
           const plan = (sub?.plan as PlanType) || "free";
