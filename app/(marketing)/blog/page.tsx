@@ -1,43 +1,17 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Clock, Calendar, Sparkles } from "lucide-react";
+import { BLOG_POSTS } from "@/lib/blog-data";
 
 export const metadata = {
   title: "Linkwise SEO Blog — Internal Linking & WordPress Growth Guides",
   description: "Learn how to optimize internal link equity, eliminate orphan pages, and boost Google organic rankings.",
 };
 
-const posts = [
-  {
-    slug: "how-to-fix-orphan-pages-wordpress",
-    category: "WordPress SEO",
-    readTime: "6 min read",
-    date: "Nov 17, 2026",
-    title: "How to Find and Fix Orphan Pages in WordPress (Complete 2026 Guide)",
-    excerpt:
-      "Orphan pages are published posts with zero inbound internal links. Discover why Google ignores them, how to map your link graph, and how to fix them automatically.",
-  },
-  {
-    slug: "internal-linking-seo-best-practices",
-    category: "Link Building",
-    readTime: "8 min read",
-    date: "Nov 15, 2026",
-    title: "Internal Linking for SEO: The Definitive Guide to PageRank Distribution",
-    excerpt:
-      "Most content teams treat internal links as an afterthought. Learn how topical cluster linking and anchor diversity can double your search visibility without new backlinks.",
-  },
-  {
-    slug: "why-cloud-saas-beats-wordpress-linking-plugins",
-    category: "Performance",
-    readTime: "5 min read",
-    date: "Nov 12, 2026",
-    title: "Why Cloud SaaS Beats Heavy PHP Internal Linking Plugins",
-    excerpt:
-      "Running heavy MySQL text searches directly on your WordPress server slows down TTFB and risks database corruption. Here is how REST API automation solves the problem.",
-  },
-];
-
 export default function BlogIndexPage() {
+  const featured = BLOG_POSTS[0];
+  const rest = BLOG_POSTS.slice(1);
+
   return (
     <div className="py-16 md:py-24 bg-bg text-text">
       <div className="max-w-[960px] mx-auto px-4 md:px-8">
@@ -55,41 +29,45 @@ export default function BlogIndexPage() {
         </div>
 
         {/* Featured Post Card */}
-        <div className="p-8 rounded-2xl bg-surface border border-border mb-12 hover:border-primary/50 transition-colors">
+        <Link
+          href={`/blog/${featured.slug}`}
+          className="block p-8 rounded-2xl bg-surface border border-border mb-12 hover:border-primary/50 transition-all group"
+        >
           <div className="flex items-center gap-3 text-[12px] text-muted mb-3">
             <span className="px-2.5 py-0.5 rounded-full font-semibold bg-primary/10 text-primary">
-              Featured Article
+              Featured Guide
             </span>
             <span>•</span>
             <span className="flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5" /> {posts[0].date}
+              <Calendar className="w-3.5 h-3.5" /> {featured.date}
             </span>
             <span>•</span>
             <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" /> {posts[0].readTime}
+              <Clock className="w-3.5 h-3.5" /> {featured.readTime}
             </span>
           </div>
 
-          <h2 className="text-2xl font-semibold text-text mb-3 hover:text-primary transition-colors">
-            {posts[0].title}
+          <h2 className="text-2xl md:text-3xl font-semibold text-text mb-3 group-hover:text-primary transition-colors">
+            {featured.title}
           </h2>
 
-          <p className="text-[15px] text-muted leading-relaxed mb-6">
-            {posts[0].excerpt}
+          <p className="text-[15px] text-muted leading-relaxed mb-6 max-w-[800px]">
+            {featured.excerpt}
           </p>
 
-          <div className="text-[14px] font-semibold text-primary inline-flex items-center gap-1.5">
+          <div className="text-[14px] font-semibold text-primary inline-flex items-center gap-1.5 group-hover:translate-x-1 transition-transform">
             <span>Read full guide</span>
             <ArrowRight className="w-4 h-4" />
           </div>
-        </div>
+        </Link>
 
         {/* Articles Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {posts.slice(1).map((post, i) => (
-            <div
+          {rest.map((post, i) => (
+            <Link
               key={i}
-              className="p-6 rounded-xl bg-surface border border-border flex flex-col justify-between hover:border-primary/50 transition-colors"
+              href={`/blog/${post.slug}`}
+              className="p-6 rounded-xl bg-surface border border-border flex flex-col justify-between hover:border-primary/50 transition-all group"
             >
               <div>
                 <div className="flex items-center gap-2 text-[12px] text-muted mb-3">
@@ -98,7 +76,7 @@ export default function BlogIndexPage() {
                   <span>{post.readTime}</span>
                 </div>
 
-                <h3 className="text-lg font-semibold text-text mb-2.5 leading-snug">
+                <h3 className="text-lg font-semibold text-text mb-2.5 leading-snug group-hover:text-primary transition-colors">
                   {post.title}
                 </h3>
 
@@ -107,11 +85,11 @@ export default function BlogIndexPage() {
                 </p>
               </div>
 
-              <div className="text-[13px] font-semibold text-primary inline-flex items-center gap-1">
+              <div className="text-[13px] font-semibold text-primary inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform pt-2">
                 <span>Read article</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
@@ -136,4 +114,3 @@ export default function BlogIndexPage() {
     </div>
   );
 }
-
