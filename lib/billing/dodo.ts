@@ -22,13 +22,22 @@ export function getDodoClient(): DodoPayments | null {
 }
 
 /**
- * Resolves the Dodo Payments product ID for a given plan.
+ * Resolves the Dodo Payments product ID for a given plan and billing interval.
  */
-export function getDodoProductId(plan: "pro" | "agency"): string | undefined {
+export function getDodoProductId(
+  plan: "pro" | "agency",
+  interval: "monthly" | "yearly" = "monthly"
+): string | undefined {
   if (plan === "pro") {
+    if (interval === "yearly" && process.env.DODO_PAYMENTS_PRO_YEARLY_PRODUCT_ID) {
+      return process.env.DODO_PAYMENTS_PRO_YEARLY_PRODUCT_ID;
+    }
     return process.env.DODO_PAYMENTS_PRO_PRODUCT_ID;
   }
   if (plan === "agency") {
+    if (interval === "yearly" && process.env.DODO_PAYMENTS_AGENCY_YEARLY_PRODUCT_ID) {
+      return process.env.DODO_PAYMENTS_AGENCY_YEARLY_PRODUCT_ID;
+    }
     return process.env.DODO_PAYMENTS_AGENCY_PRODUCT_ID;
   }
   return undefined;
@@ -41,8 +50,20 @@ export function getPlanFromDodoProductId(productId: string): {
   plan: PlanType;
   interval: "monthly" | "yearly";
 } {
+  if (
+    process.env.DODO_PAYMENTS_PRO_YEARLY_PRODUCT_ID &&
+    productId === process.env.DODO_PAYMENTS_PRO_YEARLY_PRODUCT_ID
+  ) {
+    return { plan: "pro", interval: "yearly" };
+  }
   if (productId === process.env.DODO_PAYMENTS_PRO_PRODUCT_ID) {
     return { plan: "pro", interval: "monthly" };
+  }
+  if (
+    process.env.DODO_PAYMENTS_AGENCY_YEARLY_PRODUCT_ID &&
+    productId === process.env.DODO_PAYMENTS_AGENCY_YEARLY_PRODUCT_ID
+  ) {
+    return { plan: "agency", interval: "yearly" };
   }
   if (productId === process.env.DODO_PAYMENTS_AGENCY_PRODUCT_ID) {
     return { plan: "agency", interval: "monthly" };
@@ -66,7 +87,7 @@ export async function createDodoCheckoutSession(
   options: CreateDodoCheckoutOptions
 ): Promise<string> {
   const client = getDodoClient();
-  const productId = getDodoProductId(options.plan);
+  const productId = getDodoProductId(options.plan, options.interval);
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const redirectUrl =

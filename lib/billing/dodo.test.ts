@@ -16,7 +16,9 @@ describe("Dodo Payments integration", () => {
       DODO_PAYMENTS_API_KEY: "dodo_test_mock_key",
       DODO_PAYMENTS_ENVIRONMENT: "test_mode",
       DODO_PAYMENTS_PRO_PRODUCT_ID: "pdt_pro_test_123",
+      DODO_PAYMENTS_PRO_YEARLY_PRODUCT_ID: "pdt_pro_yearly_test_789",
       DODO_PAYMENTS_AGENCY_PRODUCT_ID: "pdt_agency_test_456",
+      DODO_PAYMENTS_AGENCY_YEARLY_PRODUCT_ID: "pdt_agency_yearly_test_999",
     };
   });
 
@@ -27,7 +29,10 @@ describe("Dodo Payments integration", () => {
 
   it("resolves product IDs from environment", () => {
     expect(getDodoProductId("pro")).toBe("pdt_pro_test_123");
+    expect(getDodoProductId("pro", "monthly")).toBe("pdt_pro_test_123");
+    expect(getDodoProductId("pro", "yearly")).toBe("pdt_pro_yearly_test_789");
     expect(getDodoProductId("agency")).toBe("pdt_agency_test_456");
+    expect(getDodoProductId("agency", "yearly")).toBe("pdt_agency_yearly_test_999");
   });
 
   it("maps product IDs back to plan and interval", () => {
@@ -35,9 +40,17 @@ describe("Dodo Payments integration", () => {
       plan: "pro",
       interval: "monthly",
     });
+    expect(getPlanFromDodoProductId("pdt_pro_yearly_test_789")).toEqual({
+      plan: "pro",
+      interval: "yearly",
+    });
     expect(getPlanFromDodoProductId("pdt_agency_test_456")).toEqual({
       plan: "agency",
       interval: "monthly",
+    });
+    expect(getPlanFromDodoProductId("pdt_agency_yearly_test_999")).toEqual({
+      plan: "agency",
+      interval: "yearly",
     });
     expect(getPlanFromDodoProductId("pdt_unknown")).toEqual({
       plan: "free",
